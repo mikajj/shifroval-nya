@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Шифры</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@200;300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="input">
+            <div class="cypher-select">
+                <h1>Шифр:</h1>
+                <select name="cyphers" id="cyphers">
+                    <option value="0" selected="selected">Атбаш</option>
+                    <option value="1">Цезарь</option>
+                    <option value="2">Виженер</option>
+                </select>
+            </div>
+            <div class="variable hidden" id="variable">
+                <h1 id="second"></h1>
+                <input type="text" id="key">
+                <div id="slider">
+                    <h2 id="slider-value"></h2>
+                    <input type="range" min="0" max="33" >
+                </div>
+            </div>
+            <div class="text">
+                <h1>Текст:</h1>
+                <textarea name="text" id="text"></textarea>
+            </div>
+            <div class="buttons">
+                <button id="cypher">Шифровать</button>
+                <button id="decypher">Дешифровать</button>
+            </div>
+        </div>
+        <div class="output">
+            <h1>Расшифровка:</h1>
+            <div class="cypher-output" id="output">
+
+            </div>
+        </div>
+    </div>
+    <script>
+        let cyper = document.getElementById("cypher");
+        let second = document.getElementById("second");
+        let sliderValue = document.getElementById("slider-value");
+        let slider = document.getElementById("slider");
+        let decyper = document.getElementById("decypher");
+        let variable = document.getElementById("variable");
+        let text = document.getElementById("text");
+        let key = document.getElementById("key");
+        let output = document.getElementById("output");
+        let selectedCypher = document.getElementById("cyphers")
+
+        let alphabet_ru = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+        let alphabet_en = "abcdefghijklmnopqrstuvwxyz"
+        let alphabet = ""
+
+        cyper.addEventListener("click", () => crypt("enc"));
+        decyper.addEventListener("click", () => crypt("dec"));
+        selectedCypher.addEventListener("change", secondSection);
+        slider.oninput = function() {
+            sliderValue.innerHTML = slider.lastElementChild.value;
+        } 
+
+        sliderValue.innerHTML = slider.lastElementChild.value;
+        secondSection()
+
+        function secondSection () {
+            switch (selectedCypher.value) {
+                case "0":
+                    variable.classList.add("hidden")
+                    break;
+                case "1":
+                    variable.classList.remove("hidden");
+                    second.innerHTML = "Сдвиг:";
+                    key.classList.add("hidden")
+                    slider.classList.remove("hidden");
+                    break;
+                case "2":
+                    variable.classList.remove("hidden");
+                    second.innerHTML = "Ключ:";
+                    slider.classList.add("hidden")
+                    key.classList.remove("hidden");
+                    break;
+
+            }
+        }
+
+        function crypt(mode) {
+            alphabet = ""
+            let [rus,eng] = getLang(text.value)
+            
+            if ( rus && eng) {
+                output.classList.add("warning")
+                output.innerHTML = "Можно использовать только русский или английсикий алфавит!"
+            }
+            else {
+                output.classList.remove("warning")
+                if (rus)
+                    alphabet += alphabet_ru
+                else 
+                    alphabet += alphabet_en
+                switch (selectedCypher.value) {
+                    case "0":
+                        output.innerHTML = atbash(text.value)
+                        break;
+                    case "1":
+                        output.innerHTML = Cezar(text.value,Number(slider.lastElementChild.value),mode)
+                        break;
+                    case "2":
+                        let [keyRus,keyEng] = getLang(key.value)
+                        if (keyRus && keyEng) {
+                            output.classList.add("warning")
+                            output.innerHTML = "Ключ должен быть составлен только из русского или английского языка!"
+                        }
+                        else if ( (keyRus && rus) || (keyEng && eng))
+                            output.innerHTML = vigenereEncrypt(text.value,key.value,mode)
+                        else {
+                            output.classList.add("warning")
+                            output.innerHTML = "Ключ и текст шифра должы быть написанны на одном языке!"
+                        }
+                        break;
+
+                }
+            }
+        }
+
+        function getLang (text) {
+            let rus = false
+            let eng = false
+            for (let i = 0; i < text.length; i++) {
+                if ( alphabet_ru.includes(text[i].toLowerCase()))
+                    rus = true
+                if ( alphabet_en.includes(text[i].toLowerCase()))
+                    eng = true
+                
+            }
+            return [rus, eng]
+        }
+
+        function atbash (text) {
+            let result = ""
+
+            for (let i = 0; i < text.length; i++) {
+                let isUpperCase = text[i] === text[i].toUpperCase();
+                let char = text[i].toLowerCase();
+                let resultChar = ""
+
+                if (alphabet.includes(char))
+                    resultChar = alphabet[Math.abs(alphabet.length - alphabet.indexOf(char) - 1)]
+                else 
+                    resultChar = char
+                
+                if (isUpperCase)
+                    resultChar = resultChar.toUpperCase()
+                
+                result += resultChar
+                
+            }
+
+            return result
+        }
+
+        function Cezar (text,rot,mode) {
+            let result = ""
+
+            for (let i = 0; i < text.length; i++) {
+                let isUpperCase = text[i] === text[i].toUpperCase();
+                let char = text[i].toLowerCase();
+                let resultChar = ""
+
+                if (alphabet.includes(char)) {
+                    if( mode == "enc")
+                        resultChar = alphabet[(alphabet.indexOf(char) + rot) % alphabet.length]
+                    else 
+                        resultChar = alphabet[(alphabet.indexOf(char) - rot) % alphabet.length]
+                }
+                else 
+                    resultChar = char
+                
+                if (isUpperCase)
+                    resultChar = resultChar.toUpperCase()
+                
+                result += resultChar
+                
+            }
+
+            return result
+        }
+
+        function vigenereEncrypt(text, key,mode) {
+            let encryptedText = "";
+            key = key.toLowerCase();
+            let keyIndex = 0;
+
+            for (let i = 0; i < text.length; i++) {
+                let plainChar = text[i];
+                let isUpperCase = plainChar === plainChar.toUpperCase();
+
+                plainChar = plainChar.toLowerCase();
+                if (alphabet.includes(plainChar)) {
+                    let keyChar = key[keyIndex % key.length];
+                    let keyShift = alphabet.indexOf(keyChar);
+                    let encryptedCharIndex = ""
+                    if( mode == "enc")
+                        encryptedCharIndex = (alphabet.indexOf(plainChar) + keyShift) % alphabet.length;
+                    else
+                        encryptedCharIndex = (alphabet.indexOf(plainChar) - keyShift) % alphabet.length;
+
+                    let encryptedChar = alphabet[encryptedCharIndex];
+
+                    if (isUpperCase) {
+                        encryptedChar = encryptedChar.toUpperCase();
+                    }
+
+                    encryptedText += encryptedChar;
+                    keyIndex++;
+                } else {
+                    encryptedText += plainChar;
+                }
+            }
+
+            return encryptedText;
+        }
+
+    </script>
+</body>
+</html>
+
