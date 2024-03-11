@@ -118,7 +118,7 @@
                             output.innerHTML = "Ключ должен быть составлен только из русского или английского языка!"
                         }
                         else if ( (keyRus && rus) || (keyEng && eng))
-                            output.innerHTML = vigenereEncrypt(text.value,key.value,mode)
+                            output.innerHTML = vigenere(text.value,key.value,mode)
                         else {
                             output.classList.add("warning")
                             output.innerHTML = "Ключ и текст шифра должы быть написанны на одном языке!"
@@ -165,7 +165,7 @@
             return result
         }
 
-        function Cezar (text,rot,mode) {
+        function Cezar (text,shift,mode) {
             let result = ""
 
             for (let i = 0; i < text.length; i++) {
@@ -175,9 +175,11 @@
 
                 if (alphabet.includes(char)) {
                     if( mode == "enc")
-                        resultChar = alphabet[(alphabet.indexOf(char) + rot) % alphabet.length]
-                    else 
-                        resultChar = alphabet[(alphabet.indexOf(char) - rot) % alphabet.length]
+                        resultChar = alphabet[(alphabet.indexOf(char) + shift) % alphabet.length]
+                    else {
+                        let rot = (alphabet.indexOf(char) - shift) < 0 ? (alphabet.indexOf(char) - shift + alphabet.length) : (alphabet.indexOf(char) - shift)
+                        resultChar = alphabet[ rot % alphabet.length]
+                    }
                 }
                 else 
                     resultChar = char
@@ -192,7 +194,7 @@
             return result
         }
 
-        function vigenereEncrypt(text, key,mode) {
+        function vigenere(text, key, mode) {
             let encryptedText = "";
             key = key.toLowerCase();
             let keyIndex = 0;

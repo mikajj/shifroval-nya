@@ -17,18 +17,6 @@ body {
     background: url("./images/fhh.png") ;
     background-size: 400px;
 }
-@media screen and (max-width: 1020px) {
-    body {
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-    .wrapper {
-        width: 470px !important;
-        height: auto !important;
-        flex-direction: column !important;
-        gap: 30px !important;
-    }
-}
 h1 {
     font-size: 40px;
     color: #A77659;
@@ -233,4 +221,23 @@ button:active {
 
 .warning {
     color: red !important;
+}
+
+@media screen and (max-width: 1020px) {
+    body {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .wrapper {
+        width: 350px ;
+        height: auto ;
+        flex-direction: column ;
+        gap: 30px ;
+    }
+    .input , .output {
+        width: 350px;
+    }
+    button {
+        font-size: 18px;
+    }
 }
